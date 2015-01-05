@@ -10,10 +10,6 @@ initialLife = [(1, [0])]
 survival :: Spline
 survival = 1 - duckLife
 
--- X = X0 + int X'
--- X' (X) = z * (1 - X)
-
-
 duckLife = initialLife ++ integrateSpline duckLife'
 
 duckLife' = duckDeathAtAge * survival

@@ -66,6 +66,11 @@ integrateSpline :: Spline -> Spline
 integrateSpline = integrateSpline2 0
 
 -- TODO
+dsolve f x0 = x
+	where
+		x' = splineComposition f x
+		x = x0 ++ integrateSpline x'
+
 dsolve2 f x0 eps trim = x
 	where 
 		x' = splineComposition f x
@@ -73,10 +78,6 @@ dsolve2 f x0 eps trim = x
 			`extrapForward` eps
 		x = x0 ++ (liftS2 0 0 ++ integrateSpline x')
 
-dsolve f x0 = x
-	where
-		x' = splineComposition f x
-		x = x0 ++ integrateSpline x'
 
 inSpline2 :: (Poly -> Poly -> Poly) ->
              Spline -> Spline -> Spline
@@ -295,14 +296,17 @@ instance Fractional Poly where
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
 	where 
-		helper [] g acc _ _  = (reverse acc) ++ g
-		helper f [] acc _ _  = (reverse acc) ++ f
-		helper ((df, pf):ft) ((dg, pg):gt) acc durf durg
-			| durf == durg = helper ft gt (((min df dg), pf # pg):acc)  (durf + df) (durg + dg)
-			| durf > durg = helper ((df, pf):ft) gt (((min dg (durf - durg)), pf # pg):acc) durf (durg + dg)
-			| otherwise = helper ft ((dg, pg):gt) (((min df (durg - durf)), pf # pg):acc) (durf + df) durg
-
-
+		helper [] g acc durf durg = (reverse acc) ++ g
+		helper f [] acc durf durg = (reverse acc) ++ f
+		helper ((df, pf):ft) ((dg, pg):gt) acc durf durg = case compare (durf + df) (durg + dg) of 
+			LT -> if dg - df == 0
+				  then helper ft gt ((df, pf # pg):acc) (durf + df) durg
+				  else helper ft ((dg - df, pg):gt) ((df, pf # pg):acc) (durf + df) (durg + dg - df)
+			GT -> if df - dg == 0
+				  then helper ft gt ((dg, pf # pg):acc) durf (durg + dg)
+				  else helper ((df - dg, pf):ft) gt ((dg, pf # pg):acc) (durf + df - dg) (durg + dg)
+			EQ -> helper ft gt (((min df dg), pf # pg):acc) (durf + df) (durg + dg)
+			
 -- Polynomial composition
 (f:ft) # gs@(0:gt) = f : gt*(ft#gs)
 (f:ft) # gs@(g:gt) = [f] + gs*(ft#gs)
