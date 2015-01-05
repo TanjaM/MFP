@@ -69,9 +69,10 @@ integrateSpline = integrateSpline2 0
 dsolve2 f x0 eps trim = x
 	where 
 		x' = splineComposition f x
-		x = x0 + (liftS2 0 0 ++ integrateSpline x')
+			`trimmingTo` trim
+			`extrapForward` eps
+		x = x0 ++ (liftS2 0 0 ++ integrateSpline x')
 
-		   
 dsolve f x0 = x
 	where
 		x' = splineComposition f x
