@@ -22,10 +22,10 @@ function plotSpline(input, accuracy)
        end
        coefficients=zeros(1,length(c));
        for p=1:length(c)
-          coefficients(p) = str2double(char(c(p)));
+          coefficients(length(c) - p + 1) = str2double(char(c(p)));
        end
        x=breakpoint:accuracy:(duration+breakpoint);
-       y=polyval(coefficients, x);
+       y=polyval(coefficients, 0:accuracy:duration);
        plot(x,y);
        breakpoint=breakpoint+duration;
     end
