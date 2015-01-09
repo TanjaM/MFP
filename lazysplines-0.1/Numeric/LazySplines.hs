@@ -68,26 +68,47 @@ integrateSpline = integrateSpline2 0
 -- TODO
 dsolve f x0 = x
 	where
-		-- x' = splineComposition f x
-		--  x' = f * x
 		x' = f x
 		x = x0 ++ integrateSpline x'
 
-dsolve2 f x0 trim eps = x
+dsolveWithEps f x0 eps = dsolve f (liftS2 eps x0) 
+
+dsolveWithtTrim f x0 trim = x
 	where 
-		-- x' = splineComposition f x
-		--  x' = f * x
 		x' = f x
 			`trimmingTo` trim
-			`extrapForward` eps
+		x = x0 ++ integrateSpline x'
+
+dsolveWithHigherOrder f x0 n = x
+	where
+		dx = take (n + 1) (dsolve f x0)
+		dx0 = [(last dx)] - (sumSpline (init dx))
+		x = dsolve f dx0
+
+dsolve2 f x0 x0' = x
+	where
+		x'' = f x x'
+		x' = x0' ++ integrateSpline x''
 		x = x0 ++ integrateSpline x'
 		
-dsolve2ord f x0 = x
+dsolve2WithEps f x0 eps x0' eps' = dsolve2 f (liftS2 eps x0) (liftS2 eps' x0') 
+
+dsolve2WithTrim f x0 trim x0' trim' = x
 	where
-	    x'' = f x x'
-		x' = x0 ++ integrateSpline x'
-		x = x0 ++ integrateSpline (integrateSpline x'')
-				 
+		x'' = f x x'
+		x' = x0' ++ integrateSpline x''
+			`trimmingTo` trim'
+		x = x0 ++ integrateSpline x'
+			`trimmingTo` trim
+
+sumSpline :: Spline -> Spline
+sumSpline spline = case spline of
+	[] -> []
+	((ds, ps):st) -> helper st [(ds, ps)]
+	where
+		helper [] acc = acc
+		helper ((dx, px):xt) acc = helper xt (inSpline2 (+) [(dx, px)] acc)
+
 inSpline2 :: (Poly -> Poly -> Poly) ->
              Spline -> Spline -> Spline
 inSpline2 op ((xd,x):xs) ((yd,y):ys)
@@ -304,11 +325,9 @@ instance Fractional Poly where
 -- Spline composition
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
-	where 
-		helper [] g acc durf durg = (reverse acc)
-		helper f [] acc durf durg = (reverse acc)
-		--helper [] g acc durf durg = (reverse acc) ++ g
-		--helper f [] acc durf durg = (reverse acc) ++ f
+	where
+		helper [] g acc durf durg = (reverse acc) ++ g
+		helper f [] acc durf durg = (reverse acc) ++ f
 		helper ((df, pf):ft) ((dg, pg):gt) acc durf durg = case compare (durf + df) (durg + dg) of 
 			LT -> if dg - df == 0
 				  then helper ft gt ((df, pf # pg):acc) (durf + df) durg
@@ -323,11 +342,6 @@ splineComposition a b = helper a b [] 0 0
 (f:ft) # gs@(g:gt) = [f] + gs*(ft#gs)
 [] # _ = []
 (f:_) # [] = [f]
-
-g1 :: Poly
-g1 = [1, 3, 2]
-g2 :: Poly
-g2 = [3, 2]
 
 -- Polynomial integration
 integ fs = dropZeros $
