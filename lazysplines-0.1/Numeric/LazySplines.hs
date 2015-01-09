@@ -79,11 +79,10 @@ dsolveWithtTrim f x0 trim = x
 			`trimmingTo` trim
 		x = x0 ++ integrateSpline x'
 
-dsolveWithHigherOrder f x0 n = x
+dsolveWithHigherOrder f x0 n = dsolve f dx0
 	where
 		dx = take (n + 1) (dsolve f x0)
 		dx0 = [(last dx)] - (sumSpline (init dx))
-		x = dsolve f dx0
 
 dsolve2 f x0 x0' = x
 	where
