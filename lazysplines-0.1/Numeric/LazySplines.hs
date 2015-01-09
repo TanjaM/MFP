@@ -32,7 +32,7 @@ duration = sum . map fst
 maxDuration = 10000  -- an arbitrary limit
 
 liftS :: Double -> Spline
-liftS x = [(maxDuration,[x])]
+liftS x = liftS2 maxDuration x
 
 liftS2 :: Double -> Double -> Spline
 liftS2 duration x = [(duration,[x])]
@@ -68,17 +68,26 @@ integrateSpline = integrateSpline2 0
 -- TODO
 dsolve f x0 = x
 	where
-		x' = splineComposition f x
+		-- x' = splineComposition f x
+		--  x' = f * x
+		x' = f x
 		x = x0 ++ integrateSpline x'
 
-dsolve2 f x0 eps trim = x
+dsolve2 f x0 trim eps = x
 	where 
-		x' = splineComposition f x
+		-- x' = splineComposition f x
+		--  x' = f * x
+		x' = f x
 			`trimmingTo` trim
 			`extrapForward` eps
-		x = x0 ++ (liftS2 0 0 ++ integrateSpline x')
-
-
+		x = x0 ++ integrateSpline x'
+		
+dsolve2ord f x0 = x
+	where
+	    x'' = f x x'
+		x' = x0 ++ integrateSpline x'
+		x = x0 ++ integrateSpline (integrateSpline x'')
+				 
 inSpline2 :: (Poly -> Poly -> Poly) ->
              Spline -> Spline -> Spline
 inSpline2 op ((xd,x):xs) ((yd,y):ys)
@@ -296,8 +305,10 @@ instance Fractional Poly where
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
 	where 
-		helper [] g acc durf durg = (reverse acc) ++ g
-		helper f [] acc durf durg = (reverse acc) ++ f
+		helper [] g acc durf durg = (reverse acc)
+		helper f [] acc durf durg = (reverse acc)
+		--helper [] g acc durf durg = (reverse acc) ++ g
+		--helper f [] acc durf durg = (reverse acc) ++ f
 		helper ((df, pf):ft) ((dg, pg):gt) acc durf durg = case compare (durf + df) (durg + dg) of 
 			LT -> if dg - df == 0
 				  then helper ft gt ((df, pf # pg):acc) (durf + df) durg
@@ -312,6 +323,11 @@ splineComposition a b = helper a b [] 0 0
 (f:ft) # gs@(g:gt) = [f] + gs*(ft#gs)
 [] # _ = []
 (f:_) # [] = [f]
+
+g1 :: Poly
+g1 = [1, 3, 2]
+g2 :: Poly
+g2 = [3, 2]
 
 -- Polynomial integration
 integ fs = dropZeros $
