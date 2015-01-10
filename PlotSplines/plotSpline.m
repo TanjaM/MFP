@@ -12,7 +12,7 @@ function plotSpline(splineList)
     end
     figure(1); clf; hold on;
     n = length(splineList);
-    colors = ['b','r','g','y','m','c','w','k'];
+    colors = ['b','r','g','m','c','w','k', 'y'];
     for i=1:n
        plotingSpline = i
        plotPolySegment(char(splineList(i)), accuracy, colors(mod(i,length(colors)))) ;
