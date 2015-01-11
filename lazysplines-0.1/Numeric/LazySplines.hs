@@ -300,7 +300,10 @@ headDef _ (x:_) = x
 -- Adopted from M. Douglas McIlroy., Power series, power serious.
 -- http://www.cs.dartmouth.edu/~doug/powser.html
 
+-- | polynomial composition operator 
 infixr 9 #
+
+-- | Num evaluation of a poly.
 instance Num Poly where
    fromInteger c = [fromInteger c]
 	
@@ -314,6 +317,7 @@ instance Num Poly where
        dropZeros $ f*g : ft*gs + [f]*gt
    _ * _ = []
 
+-- | Fractional evaluation of a poly.
 instance Fractional Poly where
    fromRational c = [fromRational c]
 
