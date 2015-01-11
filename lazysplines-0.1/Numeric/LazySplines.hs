@@ -11,31 +11,40 @@ LazySplines module is an extended implementation of the Numeric.LazySplines modu
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 module Numeric.LazySplines where
+
 import Data.List
 import Control.Arrow
 
 -- | Something that can be sampled.
 class Sampleable a where
     at :: a -> Double -> Double
+
+-- | Definition of poly.
 type Poly = [Double]
 
--- Horner's scheme for polynomial evaluation
+-- Horner's scheme for polynomial evaluation.
 instance Sampleable Poly where
     at x v = foldr (\c val -> c + v * val) 0 x
 
+-- | Sampleable evaluation of a list of polynomials.
 instance Sampleable [Poly] where
     at x v = poly `at` frac
       where
         poly = x !! int
         (int,frac) = properFraction v
 
+-- | Definition of a poly segment.
 type PolySegment = (Double, Poly)
 
+-- | Definition of spline.
 type Spline = [PolySegment]
 
+-- | Definition of a spline predicate.
 type SplinePredicate =
     Double -> Double -> Poly -> Double
 
+-- | The function @duration@ calculates the duration of a spline. The duration is equal to the sum of all of the 
+--   duration of poly segments.
 duration :: Spline -> Double
 duration = sum . map fst
 
@@ -50,9 +59,11 @@ liftS x = liftSWithDuration maxDuration x
 liftSWithDuration :: Double -> Double -> Spline
 liftSWithDuration duration x = [(duration,[x])]
 
+-- | Sampleable evaluation of a polynomial segment.
 instance Sampleable PolySegment where
   at (_,poly) pt = poly `at` pt
 
+-- | Sampleable evaluation of a spline.
 instance Sampleable Spline where
   -- assume pt >= 0
   at spline pt = go spline pt where
@@ -63,6 +74,7 @@ instance Sampleable Spline where
         "Sampling spline of out bounds " ++
         show spline ++ " at: " ++ show pt
 
+-- | The function @deriveSpline@ calculates the @diff@ of all of the poly segments in a spline.
 deriveSpline :: Spline -> Spline
 deriveSpline = map (second diff)
 
@@ -90,6 +102,7 @@ sumSpline spline = case spline of
 		helper [] acc = acc
 		helper ((dx, px):xt) acc = helper xt (inSpline2 (+) [(dx, px)] acc)
 
+-- | The function @inSpline2@ applies the @op@ to the @f@ and @g@ splines.
 inSpline2 :: (Poly -> Poly -> Poly) ->
              Spline -> Spline -> Spline
 inSpline2 op ((xd,x):xs) ((yd,y):ys)
@@ -103,20 +116,22 @@ inSpline2 op ((xd,x):xs) ((yd,y):ys)
     splitPoly d (dur,poly) = (dur - d, shiftBy d poly)
 inSpline2 _ _ _ = []
 
+-- | The function @shiftBy@ shifts a specified @poly@ for a amount @d@.
 shiftBy :: Double -> Poly -> Poly
 shiftBy d poly = poly # [d,1]
 
--- |
+-- | Num evaluation of a spline.
 instance Num Spline where
     fromInteger = liftS . fromInteger
     negate = map (second negate)
     (+)    = inSpline2 (+)
     (*)    = inSpline2 (*)
 
--- |
+-- | Fractional evaluation of a spline.
 instance Fractional Spline where
    fromRational = liftS . fromRational
 
+-- | The function @mapSpline@ applies a function to the specified spline.
 mapSpline :: Bool ->
              (Double -> Double -> Poly -> Poly) ->
              Spline ->
@@ -142,11 +157,11 @@ mapSpline matchFirst f (seg:segs) =
          | otherwise  = matchScale lastVal dur $
                         f totalDur dur poly
 
--- replace 0-degree coefficient of a Poly
+-- | The function @match@ replace 0-degree coefficient of a poly with the @lastVal@.
 match lastVal (_:xs) = lastVal:xs
 match lastVal x      = [lastVal]
 
--- Alter the first point, preserve the point at dur
+-- | The function @matchScale@ alters the first point to @v@ and preserves the point at @dur@.
 matchScale v dur poly@(x:xs) = v : map (* scale) xs
            where height = poly `at` (dur - x)
                  diff   = x - v
@@ -168,6 +183,7 @@ extrapForward spline delta =
   where
     go _ _ s = shiftBy delta s
 
+-- | The function @scaleRest@ scales all of the values of the poly with @c@, except for the first one.
 scaleRest :: Poly -> Double -> Poly
 scaleRest (x:xs) c = x : map (* c) xs
 

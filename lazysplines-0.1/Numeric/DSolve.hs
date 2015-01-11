@@ -92,4 +92,3 @@ dsolve2WithEpsAndTrim :: (Spline -> Spline -> Spline) ->
 			Double -> Double -> Int -> 
 			Double -> Double -> Int -> Spline
 dsolve2WithEpsAndTrim f x0 eps trim x0' eps' trim' = dsolve2WithTrim f (liftSWithDuration eps x0) trim (liftSWithDuration eps' x0') trim'
-
