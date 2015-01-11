@@ -1,3 +1,13 @@
+{-|
+Module      : LazySplines
+Description : Lazy splines implementation.
+Copyright   : (c) Tanja Malič, Grega Gašperšič, 2015
+License     : BDS3
+Stability   : experimental 
+
+LazySplines module is an extended implementation of the Numeric.LazySplines module by Gershom Bazerman.
+-}
+
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 module Numeric.LazySplines where
@@ -31,11 +41,14 @@ duration = sum . map fst
 
 maxDuration = 10000  -- an arbitrary limit
 
+-- | The function @liftS@ creates a spline with one poly segment with the @maxDuration@ and @x@ polynomial coefficient.
 liftS :: Double -> Spline
-liftS x = liftS2 maxDuration x
+liftS x = liftSWithDuration maxDuration x
 
-liftS2 :: Double -> Double -> Spline
-liftS2 duration x = [(duration,[x])]
+-- | The function @liftSWithDuration@ creates a spline with one poly segment with the specified @duration@ and @x@ 
+--   polynomial coefficient.
+liftSWithDuration :: Double -> Double -> Spline
+liftSWithDuration duration x = [(duration,[x])]
 
 instance Sampleable PolySegment where
   at (_,poly) pt = poly `at` pt
@@ -53,8 +66,10 @@ instance Sampleable Spline where
 deriveSpline :: Spline -> Spline
 deriveSpline = map (second diff)
 
-integrateSpline2 :: Double -> Spline -> Spline
-integrateSpline2 startDuration =
+-- | The function @integrateSplineWithDuration@ integrates the specified spline. The integration process starts in the 
+--   specified @startDuration@.
+integrateSplineWithDuration :: Double -> Spline -> Spline
+integrateSplineWithDuration startDuration =
     snd . mapAccumL go startDuration . map (second integ)
   where
     go :: Double -> PolySegment -> (Double, PolySegment)
@@ -62,10 +77,11 @@ integrateSpline2 startDuration =
       where v = acc + poly `at` dur
             seg = (dur, realToFrac acc + poly)
 
+-- | The function @integrateSplineWithDuration@ integrates the specified spline. The integration process starts in 0.
 integrateSpline :: Spline -> Spline
-integrateSpline = integrateSpline2 0
+integrateSpline = integrateSplineWithDuration 0
 
-
+-- | The function @sumSpline@ sums all of the coefficients of the specified @spline@ and returns a spline of length 0 or 1.
 sumSpline :: Spline -> Spline
 sumSpline spline = case spline of
 	[] -> []
@@ -90,11 +106,16 @@ inSpline2 _ _ _ = []
 shiftBy :: Double -> Poly -> Poly
 shiftBy d poly = poly # [d,1]
 
+-- |
 instance Num Spline where
     fromInteger = liftS . fromInteger
     negate = map (second negate)
     (+)    = inSpline2 (+)
     (*)    = inSpline2 (*)
+
+-- |
+instance Fractional Spline where
+   fromRational = liftS . fromRational
 
 mapSpline :: Bool ->
              (Double -> Double -> Poly -> Poly) ->
@@ -266,7 +287,7 @@ headDef _ (x:_) = x
 infixr 9 #
 instance Num Poly where
    fromInteger c = [fromInteger c]
-
+	
    negate fs = map negate fs
 
    (f:ft) + (g:gt) = f+g : ft+gt
@@ -287,6 +308,7 @@ instance Fractional Poly where
    [] / (g:gt) = []
    _ / _ = error "improper polynomial division"
 
+   
 -- Spline composition
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
@@ -301,7 +323,7 @@ splineComposition a b = helper a b [] 0 0
 				  then helper ft gt ((dg, pf # pg):acc) durf (durg + dg)
 				  else helper ((df - dg, pf):ft) gt ((dg, pf # pg):acc) (durf + df - dg) (durg + dg)
 			EQ -> helper ft gt (((min df dg), pf # pg):acc) (durf + df) (durg + dg)
-			
+
 -- Polynomial composition
 (f:ft) # gs@(0:gt) = f : gt*(ft#gs)
 (f:ft) # gs@(g:gt) = [f] + gs*(ft#gs)
