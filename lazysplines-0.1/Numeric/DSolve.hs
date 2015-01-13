@@ -45,7 +45,7 @@ dsolveWithEpsAndTrim :: (Spline -> Spline) ->
 			Double -> Double -> Int -> Spline
 dsolveWithEpsAndTrim f x0 eps trim = dsolveWithTrim f (liftSWithDuration eps x0)  trim
 
--- | The function @dsolveWithHigherOrder@ solves the first order differential equation @f@ with the initial or boundary 
+-- | The function @dsolveWithHigherOrder@ solves the first order differential equation @f@ where the initial or boundary 
 --   condition is the @n@-th polynomial of the solution of @f@ with the initial or boundary condition @x0@.
 dsolveWithHigherOrder :: (Spline -> Spline) -> 
 			Spline -> Int -> Spline
