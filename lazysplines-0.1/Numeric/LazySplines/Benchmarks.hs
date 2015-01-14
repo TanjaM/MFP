@@ -13,12 +13,12 @@ main =
 	defaultMain [
 	  -- f1:  y'(x)=y(x)
       --      y(0)=1
-	  bgroup	"f1_basic" 		[ bench "f1"         $ whnf runTest (dsolve (\x -> x) 1)],
-	  bgroup	"f1_eps" 		[ bench "f1_eps_001" $ whnf runTest (dsolveWithEps (\x -> x) 1 0.01)
-								, bench "f1_eps_01"  $ whnf runTest (dsolveWithEps (\x -> x) 1 0.1)
-								, bench "f1_eps_05"  $ whnf runTest (dsolveWithEps (\x -> x) 1 0.5)
-								, bench "f1_eps_1"   $ whnf runTest (dsolveWithEps (\x -> x) 1 1)
-								, bench "f1_eps_10"  $ whnf runTest (dsolveWithEps (\x -> x) 1 10)
+	  bgroup	"f1_basic" 		[ bench "f1"           $ whnf runTest (dsolve (\x -> x) 1)],
+	  bgroup	"f1_eps" 		[ bench "f1_eps_001"   $ whnf runTest (dsolveWithEps (\x -> x) 1 0.01)
+								, bench "f1_eps_01"    $ whnf runTest (dsolveWithEps (\x -> x) 1 0.1)
+								, bench "f1_eps_05"    $ whnf runTest (dsolveWithEps (\x -> x) 1 0.5)
+								, bench "f1_eps_1"     $ whnf runTest (dsolveWithEps (\x -> x) 1 1)
+								, bench "f1_eps_10"    $ whnf runTest (dsolveWithEps (\x -> x) 1 2)
 								],
 	  bgroup 	"f1_trim"   	[ bench "f1_trim_2"   $ whnf runTest (dsolveWithEpsAndTrim (\x -> x) 1 0.5 2)
 								, bench "f1_trim_3"   $ whnf runTest (dsolveWithEpsAndTrim (\x -> x) 1 0.5 3)

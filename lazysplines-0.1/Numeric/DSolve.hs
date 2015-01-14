@@ -37,7 +37,7 @@ dsolveWithTrim f x0 trim = x
 	where 
 		x' = f x
 			`trimmingTo` trim
-		x = x0 ++ integrateSpline x'
+		x = x0 ++ (liftS (head (snd (head x0))) + integrateSpline x')
 		
 -- | The function @dsolveWithEpsAndTrim@ solves the first order differential equation @f@ with the initial or boundary 
 --   condition @x0@ of duration @eps@. All polynomial coefficients are limited to @trim@.
