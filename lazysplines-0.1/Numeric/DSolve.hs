@@ -21,7 +21,7 @@ dsolve :: (Spline -> Spline) ->
 dsolve f x0 = x
 	where
 		x' = f x
-		x = x0 ++ integrateSpline x'
+		x = x0 ++ (liftS (head (snd (head x0))) + integrateSpline x')
 
 -- | The function @dsolveWithEps@ solves the first order differential equation @f@ with the initial or boundary condition
 --   @x0@ of duration @eps@.
@@ -49,10 +49,12 @@ dsolveWithEpsAndTrim f x0 eps trim = dsolveWithTrim f (liftSWithDuration eps x0)
 --   condition is the @n@-th polynomial of the solution of @f@ with the initial or boundary condition @x0@.
 dsolveWithHigherOrder :: (Spline -> Spline) -> 
 			Spline -> Int -> Spline
-dsolveWithHigherOrder f x0 n = dsolve f dx0
+dsolveWithHigherOrder f x0 n = x
 	where
 		dx = take (n + 1) (dsolve f x0)
-		dx0 = [(last dx)] - (sumSpline (init dx))
+		dx0 = [(last dx)]
+		q = (head (snd (head x0))) - (head (snd (head dx0)))
+		x = (drop n (dsolve f x0)) + (liftS q)
 
 -- | The function @dsolve2@ solves the second order differential equation @f@ with the initial or boundary condition @x0@ 
 --   and @x0'@.
@@ -92,3 +94,15 @@ dsolve2WithEpsAndTrim :: (Spline -> Spline -> Spline) ->
 			Double -> Double -> Int -> 
 			Double -> Double -> Int -> Spline
 dsolve2WithEpsAndTrim f x0 eps trim x0' eps' trim' = dsolve2WithTrim f (liftSWithDuration eps x0) trim (liftSWithDuration eps' x0') trim'
+
+-- | The function @dsolve2WithHigherOrder@ solves the first order differential equation @f@ where the initial or boundary 
+--   condition is the @n@-th polynomial of the solution of @f@ with the initial or boundary condition @x0@ and @x0'@.
+dsolve2WithHigherOrder
+  :: (Spline -> Spline -> Spline)
+     -> Spline -> Spline -> Int -> Spline
+dsolve2WithHigherOrder f x0 x0' n = x
+	where
+		dx = take (n + 1) (dsolve2 f x0 x0')
+		dx0 = [(last dx)]
+		q = (head (snd (head x0))) - (head (snd (head dx0)))
+		x = (drop n (dsolve2 f x0 x0')) + (liftS q)
