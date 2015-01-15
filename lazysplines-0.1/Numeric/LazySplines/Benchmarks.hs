@@ -2,8 +2,11 @@ import Criterion.Main
 import Numeric.LazySplines.Examples
 import Numeric.DSolve
 import GHC.IO.Encoding
+import Control.DeepSeq
 
-runTest f = f
+
+--runTest f = force (f `takeToDuration` 500)
+runTest f = force (take 1000 f)
 	
 main =
 	do
@@ -39,6 +42,11 @@ main =
 								, bench "f2_eps_001"  $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.01  1 0.01)
 								, bench "f2_eps_01"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.1   1 0.1)
 								, bench "f2_eps_05"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.5   1 0.5)
+								--  bench "f2_eps_001"  $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.01 1 0.01)
+								--, bench "f2_eps_01"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.1 1 0.1)
+								--, bench "f2_eps_05"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 0.5 1 0.5)
+								--, bench "f2_eps_1"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 1 1 1)
+								--, bench "f2_eps_10"   $ whnf runTest (dsolve2WithEps (\x x' -> -x) 0 10 1 10)
 								],
 	  bgroup 	"f2_trim"   	[ bench "f2_trim_2"   $ whnf runTest (dsolve2WithEpsAndTrim (\x x' -> -x) 0 0.1 2   1 0.1 2)
 								, bench "f2_trim_3"   $ whnf runTest (dsolve2WithEpsAndTrim (\x x' -> -x) 0 0.1 3   1 0.5 3)

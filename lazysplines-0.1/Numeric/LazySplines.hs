@@ -168,6 +168,7 @@ matchScale v dur poly@(x:xs) = v : map (* scale) xs
                  scale = height / (height - diff)
 matchScale v _ x = [v]
 
+-- | The function @trimmingTo@ trimms every poly in the spline to the specified power.
 infixl 1 `trimmingTo`
 trimmingTo :: Spline -> Int -> Spline
 trimmingTo spline power =
@@ -175,7 +176,20 @@ trimmingTo spline power =
   where
     go _ _ s = take power s
 
-
+-- | The function @takeToDuration@ takes the spline to the specified duration.
+infixl 1 `takeToDuration`
+takeToDuration :: Spline -> Double -> Spline
+takeToDuration spline duration = helper spline duration [] 0
+	where
+		helper [] _ acc _ = reverse acc
+		helper ((ds, ps):fs) maxduration acc accdur = case compare maxduration (ds + accdur) of
+			LT -> if maxduration - (ds + accdur) == 0
+				then reverse acc
+				else reverse ((maxduration - (ds + accdur), ps):acc) 
+			GT -> helper fs maxduration ((ds, ps):acc) (ds + accdur)
+			EQ -> reverse ((ds, ps):acc)
+		
+-- | The function @extrapForward@ shifts every poly in the spline for the specified delta.
 infixl 1 `extrapForward`
 extrapForward :: Spline -> Double -> Spline
 extrapForward spline delta =
@@ -330,6 +344,7 @@ instance Fractional Poly where
 
    
 -- Spline composition
+infixl 1 `splineComposition`
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
 	where
