@@ -13,4 +13,5 @@ build-Depends:       base
 Cabal-Version:       >= 1.2
 
 exposed-modules: Numeric.LazySplines
+                 Numeric.DSolve
                  Numeric.LazySplines.Examples

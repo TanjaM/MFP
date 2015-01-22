@@ -285,7 +285,6 @@ lastDef _ [x]        = x
 lastDef def (x : xs) = lastDef def xs
 
 
-
 infixl 1 `trimSmart`
 trimSmart :: Spline ->
              SplinePredicate ->
@@ -314,9 +313,6 @@ headDef _ (x:_) = x
 -- Adopted from M. Douglas McIlroy., Power series, power serious.
 -- http://www.cs.dartmouth.edu/~doug/powser.html
 
--- | polynomial composition operator 
-infixr 9 #
-
 -- | Num evaluation of a poly.
 instance Num Poly where
    fromInteger c = [fromInteger c]
@@ -343,8 +339,9 @@ instance Fractional Poly where
    _ / _ = error "improper polynomial division"
 
    
--- Spline composition
+-- | Spline composition operator 
 infixl 1 `splineComposition`
+-- Spline composition
 splineComposition :: Spline -> Spline -> Spline
 splineComposition a b = helper a b [] 0 0
 	where
@@ -359,6 +356,9 @@ splineComposition a b = helper a b [] 0 0
 				  else helper ((df - dg, pf):ft) gt ((dg, pf # pg):acc) (durf + df - dg) (durg + dg)
 			EQ -> helper ft gt (((min df dg), pf # pg):acc) (durf + df) (durg + dg)
 
+
+-- | Polynomial composition operator 
+infixr 9 #
 -- Polynomial composition
 (f:ft) # gs@(0:gt) = f : gt*(ft#gs)
 (f:ft) # gs@(g:gt) = [f] + gs*(ft#gs)
