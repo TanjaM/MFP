@@ -11,9 +11,9 @@ Avtorja: Grega Gašperšič, Tanja Malić
 Za uporabo je potrebno paket namestiti s programom Cabal.
 
 Podatkovna struktura:
-p    ... polinom podan s seznamom koeficientov: [a0, a1, ... an]
-ps   ... segment polinoma, ki je par (d, p), kjer d predstavlja dolžino polinoma p
-s    ... zlepek, ki je seznam segmentov [(d1,ps1), (d2, ps2), ... (dn,psn)]
+- p    ... polinom podan s seznamom koeficientov: [a0, a1, ... an]
+- ps   ... segment polinoma, ki je par (d, p), kjer d predstavlja dolžino polinoma p
+- s    ... zlepek, ki je seznam segmentov [(d1,ps1), (d2, ps2), ... (dn,psn)]
 
 V datoteki DSolve.hs se nahajajo funkcije, s katerimi rešimo dano diferencialno enačbo.
 
