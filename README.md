@@ -21,6 +21,6 @@ Cilji projekta:
 - trim ... določamo lahko stopnjo polinomov vseh segmentov - s tem pridobimo na času, a izgubimo na natančnosti
 - higherOrder ... določamo lahko pri katerem segmentu zlapka začnemo
 
-V datoteki DSolve.hs se nahajajo funkcije, s katerimi rešimo dano diferencialno enačbo.
-
-V datoteki Benchmark.hs se nahajajo primeri uporabe in testni primeri.
+Datoteke:
+- V datoteki DSolve.hs se nahajajo funkcije, s katerimi rešimo dano diferencialno enačbo.
+- V datoteki Benchmark.hs se nahajajo primeri uporabe in testni primeri.
