@@ -1,3 +1,5 @@
+LazySplines
+=================
 Repozitorij za projekt pri predmetu matematika s funkcijskim programiranjem.
 
 Tema projekta: reševanje diferencialnih enačb s pomočjo zlepkov (angl. spline).
@@ -5,7 +7,6 @@ Tema projekta: reševanje diferencialnih enačb s pomočjo zlepkov (angl. spline
 Vir in osnova za projekt: http://gbaz.github.io/slides/ode-draft-2009.pdf
 
 Avtorja: Grega Gašperšič, Tanja Malić
-=============================================================================================
 
 Za uporabo je potrebno paket namestiti s programom Cabal.
 
