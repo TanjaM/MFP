@@ -15,11 +15,12 @@ Podatkovna struktura:
 - ps   ... segment polinoma, ki je par (d, p), kjer d predstavlja dolžino polinoma p
 - s    ... zlepek, ki je seznam segmentov [(d1,ps1), (d2, ps2), ... (dn,psn)]
 
-V datoteki DSolve.hs se nahajajo funkcije, s katerimi rešimo dano diferencialno enačbo.
-
-Izboljšave:
+Cilji projekta:
+- knjižnica funkcij za reševanje diferencialnih enačb
 - eps  ... določamo lahko parameter d - s tem pridobimo na natančnosti a izgubimo na času
 - trim ... določamo lahko stopnjo polinomov vseh segmentov - s tem pridobimo na času, a izgubimo na natančnosti
 - higherOrder ... določamo lahko pri katerem segmentu zlapka začnemo
 
+V datoteki DSolve.hs se nahajajo funkcije, s katerimi rešimo dano diferencialno enačbo.
 
+V datoteki Benchmark.hs se nahajajo primeri uporabe in testni primeri.
